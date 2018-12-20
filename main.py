@@ -3,6 +3,7 @@ from bottle import get, post, redirect, request, route, run, static_file, templa
 import utils
 import json
 
+p = os.path.abspath(os.getcwd())
 
 # Static Routes
 
@@ -21,41 +22,45 @@ def img(filepath):
     return static_file(filepath, root="./images")
 
 
-@route('/')
+@route('/', method="GET")
 def index():
-    sectionTemplate = "./templates/home.tpl"
-    return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={})
+    sectionTemplate = os.path.join(p, "templates", "home.tpl")
+    return template(os.path.join(p, "pages", "index.html"), version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={})
 
 
-@route('/browse')
+@route('/browse', method="GET")
 def browse():
     sectionTemplate = "./templates/browse.tpl"
-    return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData=utils.data["result"])
+    return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate,
+                    sectionData=utils.data["result"])
 
 
-@route('/search')
+@route('/search', method="GET")
 def search():
     sectionTemplate = "./templates/search.tpl"
     return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={})
 
 
-@route('/show/<show_id:int>')
+@route('ajax/show/<show_id:int>', method='GET')
 def show(show_id):
     show_as_list = [show for show in utils.data["result"] if show['id'] == show_id]
+    print(show_as_list)
     if any(show_as_list):
         show = show_as_list[0]
         sectionTemplate = "./templates/show.tpl"
-        return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate,
-                        sectionData=show)
+        return template(sectionTemplate, show=show)
     else:
-        response.status = 404
         return False
 
+
+@route('/show/<show_id:int>', method="GET")
+def return_show_page(show_id):
+    return "ok"
 
 @error(404)
 def error404(error):
     sectionTemplate = "./templates/404.tpl"
-    return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={})
+    return template(sectionTemplate)
 
 
 def main():
