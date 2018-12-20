@@ -7,6 +7,7 @@ import json
 
 p = os.path.abspath(os.getcwd())
 
+
 # Static Routes
 
 @get("/js/<filepath:re:.*\.js>")
@@ -27,12 +28,14 @@ def img(filepath):
 @route('/', method="GET")
 def index():
     sectionTemplate = os.path.join(p, "templates", "home.tpl")
-    return template(os.path.join(p, "pages", "index.html"), version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={})
+    return template(os.path.join(p, "pages", "index.html"), version=utils.getVersion(), sectionTemplate=sectionTemplate,
+                    sectionData={})
 
 
 @route('/browse', method="GET")
 def browse():
     sectionTemplate = "./templates/browse.tpl"
+    print(utils.data["result"])
     return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate,
                     sectionData=utils.data["result"])
 
@@ -58,9 +61,37 @@ def return_show_page(show_id):
     show = utils.get_show_by_id(show_id)
     if any(show):
         sectionTemplate = "./templates/show.tpl"
-        return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData=show)
+        return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate,
+                        sectionData=show)
+    else:
+        response.status = 404
+        sectionTemplate = "./templates/404.tpl"
+        return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate,
+                        sectionData={})
+
+
+@route('/ajax/show/<show_id:int>/episode/<episode_id:int>', method='GET')
+def episode(show_id, episode_id):
+    episode = utils.get_episode_by_id(show_id, episode_id)
+    if any(episode):
+        return template("./templates/episode.tpl", result=episode)
     else:
         return False
+
+
+@route('/show/<show_id:int>/episode/<episode_id:int>', method="GET")
+def return_episode_page(show_id, episode_id):
+    episode = utils.get_episode_by_id(show_id, episode_id)
+    if any(episode):
+        sectionTemplate = "./templates/episode.tpl"
+        return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate,
+                        sectionData=episode)
+    else:
+        response.status = 404
+        sectionTemplate = "./templates/404.tpl"
+        return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate,
+                        sectionData={})
+
 
 @error(404)
 def error404(error):
