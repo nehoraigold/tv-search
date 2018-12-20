@@ -26,6 +26,7 @@ def img(filepath):
 @get('/')
 def index():
     sectionTemplate = os.path.join(p, "templates", "home.tpl")
+    print(utils.data["result"])
     return template(os.path.join(p, "pages", "index.html"), version=utils.getVersion(), sectionTemplate=sectionTemplate,
                     sectionData={})
 
@@ -47,6 +48,7 @@ def search():
 @post('/search')
 def return_search_results():
     query = request.forms.get('q')
+    match = utils.search_show_by_name(query)
     sectionTemplate = "./templates/search_result.tpl"
     return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData=query)
 
@@ -105,7 +107,6 @@ def error404(error):
 
 
 def main():
-    utils.load_data()
     run(host='localhost', port=os.environ.get('PORT', 5000))
 
 

@@ -1,7 +1,10 @@
 from bottle import template
+import os
 import json
 
-JSON_FOLDER = '.\\data\\'
+p = os.getcwd()
+
+JSON_FOLDER = p + '/data/'
 AVAILABLE_SHOWS = ["7", "66", "73", "82", "112", "143", "175", "216", "1371", "1871", "2993", "305"]
 
 
@@ -34,6 +37,27 @@ def load_data():
     return [json.loads(getJsonFromFile(show)) for show in AVAILABLE_SHOWS]
 
 
+def find_episodes(input):
+    showresults = []
+    for show in data["result"]:
+        if input in show["name"]:
+            showreturn = {}
+            showreturn["showid"] = show["id"]
+            showreturn["episodeid"] = show["episodes"][0]["id"]
+            showreturn["text"] = show["name"] + ": " + show["episodes"][0]["name"]
+            showresults.append(showreturn)
+        for episode in show["episodes"]:
+            if input in episode["name"] or input in episode["summary"]:
+                episodereturn = {}
+                episodereturn["episodeid"] = episode["id"]
+                episodereturn["showid"] = show["id"]
+                episodereturn["text"] = show["name"] + ": " + episode["name"]
+                showresults.append(episodereturn)
+    return showresults
+
+
 data = {
     "result": load_data()
 }
+
+print(data["result"])
