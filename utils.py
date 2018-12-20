@@ -1,5 +1,6 @@
 from bottle import template
 import os
+import requests
 import json
 
 p = os.getcwd()
@@ -34,11 +35,34 @@ def get_episode_by_id(show_id, episode_id):
 
 
 def load_data():
+    # using the API to load data
+    url = "http://api.tvmaze.com/shows/"
+    results = []
+    for show in AVAILABLE_SHOWS:
+        show_req = requests.get(url + show)
+        episode_req = requests.get(url + show + "/episodes")
+        show_info = json.loads(show_req.text)
+        show_info["_embedded"] = {}
+        show_info["_embedded"]["episodes"] = json.loads(episode_req.text)
+        results.append(show_info)
+    return results
+
+def load_local_data():
+    # if loading from local data provided
     return [json.loads(getJsonFromFile(show)) for show in AVAILABLE_SHOWS]
 
 
+def sort_browse(shows, order):
+    if order == "rating":
+        return reversed(sorted(shows, key=lambda result: result["rating"]["average"]))
+    elif order == "name":
+        return sorted(shows, key=lambda result: result["name"])
+    else:
+        return shows
+
+
 def find_episodes(input):
-    input = input.lower()
+    input = input.lower().strip()
     showresults = []
     for show in data["result"]:
         if input in show["name"].lower():
@@ -46,6 +70,7 @@ def find_episodes(input):
             showreturn["showid"] = show["id"]
             showreturn["episodeid"] = show["_embedded"]["episodes"][0]["id"]
             showreturn["text"] = show["name"] + ": " + show["_embedded"]["episodes"][0]["name"]
+            showreturn["rating"] = show["rating"]["average"]
             showresults.append(showreturn)
         for episode in show["_embedded"]["episodes"]:
             if input in episode["name"].lower() or (episode["summary"] and input in episode["summary"].lower()):
@@ -53,8 +78,16 @@ def find_episodes(input):
                 episodereturn["episodeid"] = episode["id"]
                 episodereturn["showid"] = show["id"]
                 episodereturn["text"] = show["name"] + ": " + episode["name"]
+                episodereturn["rating"] = show["rating"]["average"]
                 showresults.append(episodereturn)
     return showresults
+
+
+def sort_results(results, order):
+    if order == "rating":
+        return reversed(sorted(results, key=lambda result: result["rating"]))
+    else:
+        return sorted(results, key=lambda result: result["text"])
 
 
 data = {

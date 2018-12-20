@@ -32,10 +32,22 @@ def index():
 
 @get('/browse')
 def browse():
+    shows = utils.data["result"]
+    order = request.query.get('order') if len(request.query) > 0 else None
+    shows = utils.sort_browse(shows, order)
     sectionTemplate = "./templates/browse.tpl"
-    print(utils.data["result"])
     return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate,
-                    sectionData=utils.data["result"])
+                    sectionData=shows)
+
+
+@get('/browse/name')
+def browse_name():
+    redirect('/browse?order=name')
+
+
+@get('/browse/rating')
+def browse_rating():
+    redirect('/browse?order=rating')
 
 
 @route('/search', method="GET")
@@ -46,9 +58,11 @@ def search():
 
 @post('/search')
 def return_search_results():
-    query = request.forms.get('q')
+    query_args = request.forms.get('q').split(";")
+    query = query_args[0]
+    order = query_args[1].strip().lower() if len(query_args) > 1 else None
     match = utils.find_episodes(query)
-    # match = [{"text": "THIS IS AN EPISODE", "showid": 7, "episodeid": 19}]
+    match = utils.sort_results(match, order)
     sectionTemplate = "./templates/search_result.tpl"
     return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={},
                     results=match, query=query)
