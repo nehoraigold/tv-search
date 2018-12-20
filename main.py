@@ -47,18 +47,21 @@ def search():
 @post('/search')
 def return_search_results():
     query = request.forms.get('q')
+    # match = utils.find_episodes(query)
+    match = [{"text": "THIS IS AN EPISODE", "showid": 7, "episodeid": 19}]
     sectionTemplate = "./templates/search_result.tpl"
-    return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData=query)
+    return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={},
+                    results=match, query=query)
 
 
 @get('/ajax/show/<show_id:int>')
 def show(show_id):
     show = utils.get_show_by_id(show_id)
     if any(show):
-        sectionTemplate = "./templates/show.tpl"
-        return template(sectionTemplate, result=show)
+        return template("./templates/show.tpl", result=show)
     else:
-        return False
+        response.status = 404
+        return template("./templates/404.tpl")
 
 
 @get('/show/<show_id:int>')
@@ -81,7 +84,8 @@ def episode(show_id, episode_id):
     if any(episode):
         return template("./templates/episode.tpl", result=episode)
     else:
-        return False
+        response.status = 404
+        return template("./templates/404.tpl")
 
 
 @get('/show/<show_id:int>/episode/<episode_id:int>')
