@@ -17,6 +17,11 @@ def getJsonFromFile(showName):
         return "{}"
 
 
+def get_show_by_id(show_id):
+    show_as_list = [show for show in data["result"] if show['id'] == show_id]
+    return show_as_list[0] if any(show_as_list) else False
+
+
 def load_data():
     return [json.loads(getJsonFromFile(show)) for show in AVAILABLE_SHOWS]
 

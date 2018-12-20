@@ -1,4 +1,6 @@
 import os
+from typing import List, Any
+
 from bottle import get, post, redirect, request, route, run, static_file, template, error, response
 import utils
 import json
@@ -41,21 +43,24 @@ def search():
     return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={})
 
 
-@route('ajax/show/<show_id:int>', method='GET')
+@route('/ajax/show/<show_id:int>', method='GET')
 def show(show_id):
-    show_as_list = [show for show in utils.data["result"] if show['id'] == show_id]
-    print(show_as_list)
-    if any(show_as_list):
-        show = show_as_list[0]
+    show = utils.get_show_by_id(show_id)
+    if any(show):
         sectionTemplate = "./templates/show.tpl"
-        return template(sectionTemplate, show=show)
+        return template(sectionTemplate, result=show)
     else:
         return False
 
 
 @route('/show/<show_id:int>', method="GET")
 def return_show_page(show_id):
-    return "ok"
+    show = utils.get_show_by_id(show_id)
+    if any(show):
+        sectionTemplate = "./templates/show.tpl"
+        return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData=show)
+    else:
+        return False
 
 @error(404)
 def error404(error):
