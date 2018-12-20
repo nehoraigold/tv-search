@@ -47,8 +47,8 @@ def search():
 @post('/search')
 def return_search_results():
     query = request.forms.get('q')
-    # match = utils.find_episodes(query)
-    match = [{"text": "THIS IS AN EPISODE", "showid": 7, "episodeid": 19}]
+    match = utils.find_episodes(query)
+    # match = [{"text": "THIS IS AN EPISODE", "showid": 7, "episodeid": 19}]
     sectionTemplate = "./templates/search_result.tpl"
     return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={},
                     results=match, query=query)

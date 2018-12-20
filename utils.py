@@ -38,16 +38,17 @@ def load_data():
 
 
 def find_episodes(input):
+    input = input.lower()
     showresults = []
     for show in data["result"]:
-        if input in show["name"]:
+        if input in show["name"].lower():
             showreturn = {}
             showreturn["showid"] = show["id"]
-            showreturn["episodeid"] = show["episodes"][0]["id"]
-            showreturn["text"] = show["name"] + ": " + show["episodes"][0]["name"]
+            showreturn["episodeid"] = show["_embedded"]["episodes"][0]["id"]
+            showreturn["text"] = show["name"] + ": " + show["_embedded"]["episodes"][0]["name"]
             showresults.append(showreturn)
-        for episode in show["episodes"]:
-            if input in episode["name"] or input in episode["summary"]:
+        for episode in show["_embedded"]["episodes"]:
+            if input in episode["name"].lower() or (episode["summary"] and input in episode["summary"].lower()):
                 episodereturn = {}
                 episodereturn["episodeid"] = episode["id"]
                 episodereturn["showid"] = show["id"]
@@ -59,5 +60,3 @@ def find_episodes(input):
 data = {
     "result": load_data()
 }
-
-print(data["result"])
