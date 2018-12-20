@@ -1,6 +1,5 @@
 from bottle import template
 import json
-import os
 
 JSON_FOLDER = '.\\data\\'
 AVAILABLE_SHOWS = ["7", "66", "73", "82", "112", "143", "175", "216", "1371", "1871", "2993", "305"]

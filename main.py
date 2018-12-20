@@ -1,6 +1,4 @@
 import os
-from typing import List, Any
-
 from bottle import get, post, redirect, request, route, run, static_file, template, error, response
 import utils
 import json
@@ -25,14 +23,14 @@ def img(filepath):
     return static_file(filepath, root="./images")
 
 
-@route('/', method="GET")
+@get('/')
 def index():
     sectionTemplate = os.path.join(p, "templates", "home.tpl")
     return template(os.path.join(p, "pages", "index.html"), version=utils.getVersion(), sectionTemplate=sectionTemplate,
                     sectionData={})
 
 
-@route('/browse', method="GET")
+@get('/browse')
 def browse():
     sectionTemplate = "./templates/browse.tpl"
     print(utils.data["result"])
@@ -46,7 +44,14 @@ def search():
     return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData={})
 
 
-@route('/ajax/show/<show_id:int>', method='GET')
+@post('/search')
+def return_search_results():
+    query = request.forms.get('q')
+    sectionTemplate = "./templates/search_result.tpl"
+    return template("./pages/index.html", version=utils.getVersion(), sectionTemplate=sectionTemplate, sectionData=query)
+
+
+@get('/ajax/show/<show_id:int>')
 def show(show_id):
     show = utils.get_show_by_id(show_id)
     if any(show):
@@ -56,7 +61,7 @@ def show(show_id):
         return False
 
 
-@route('/show/<show_id:int>', method="GET")
+@get('/show/<show_id:int>')
 def return_show_page(show_id):
     show = utils.get_show_by_id(show_id)
     if any(show):
@@ -70,7 +75,7 @@ def return_show_page(show_id):
                         sectionData={})
 
 
-@route('/ajax/show/<show_id:int>/episode/<episode_id:int>', method='GET')
+@get('/ajax/show/<show_id:int>/episode/<episode_id:int>')
 def episode(show_id, episode_id):
     episode = utils.get_episode_by_id(show_id, episode_id)
     if any(episode):
@@ -79,7 +84,7 @@ def episode(show_id, episode_id):
         return False
 
 
-@route('/show/<show_id:int>/episode/<episode_id:int>', method="GET")
+@get('/show/<show_id:int>/episode/<episode_id:int>')
 def return_episode_page(show_id, episode_id):
     episode = utils.get_episode_by_id(show_id, episode_id)
     if any(episode):
